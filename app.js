@@ -176,12 +176,12 @@ function closeVoting() {
 	}
 	if (max < totalVotes / 2) {
 		var newCandidates = {}
-		for (var i = 0; i < maxCandidates.length; i++) {
-				newCandidates[maxCandidates[i]] = 0;
-			}
+		for (let candidate of maxCandidates) {
+			newCandidates[candidate] = 0;
+		}
 		if (maxCandidates.length <= winners) { 
-			for (var i = 0; i < runnerCandidates.length; i++) {
-				newCandidates[runnerCandidates[i]] = 0;
+			for (let candidate of runnerCandidates) {
+				newCandidates[candidate] = 0;
 			}
 		}
 		console.log(`${maxCandidates.join(', ')} had ${max} votes`);
@@ -196,13 +196,13 @@ function closeVoting() {
 	}
 	if (maxCandidates.length < winners) {
 		console.log(`${maxCandidates.join(', ')} won, but there aren't enough to satisfy requirements, adding ${runnerCandidates.join(', ')} to satisfy`);
-		maxCandidates.push(runnerCandidates);
+		maxCandidates.concat(runnerCandidates);
 	}
-	if (maxCandidates > winners) {
+	if (maxCandidates.length > winners) {
 		console.log(`${maxCandidates.join(', ')} is too many candidates, second vote to narrow!`);
 		var newCandidates = {};
-		for (var i = 0; i < maxCandidates.length; i++) {
-			newCandidates[maxCandidates[i]] = 0;
+		for (let candidate of maxCandidates) {
+			newCandidates[candidate] = 0;
 		}
 		polls[activePoll] = {
 			candidates: newCandidates,
@@ -210,8 +210,9 @@ function closeVoting() {
 			winners: winners
 		};
 	} else {
-		console.log(`${maxCandidates.join(', ')} win ${activePoll}!`);
+		console.log(`${maxCandidates.join(', ')} wins ${activePoll}!`);
 	}
+	activePoll = null
 }
 
 module.exports = app;

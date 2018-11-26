@@ -2,10 +2,8 @@ extends layout
 
 block content
   .container-fluid
-    .col.col-md-4
-    .col.col-sm-12.col-md-4
       if poll == null
-        h4 No active vote available!
+        h4 Voting is not available at this time!
       else if thanks
         h4 Thanks for voting!
       else 
@@ -15,11 +13,11 @@ block content
           while x < winners
             - x++
             select(required, size=candidates.length, name='candidate' + x, class='form-control form-control-lg', id='candidate' + x)
+              option(disabled, selected) Select a candidate
               each candidate in candidates
                 option(value=candidate)= candidate
             br
           center
             button(type='submit', class='btn btn-lg btn-info', id='submit') Submit
-            .alert.alert-danger(id='alert', role='alert') You must select different options for your vote!
-    .col.col-md-4
+            .alert.alert-danger(id='alert', role='alert') You must select a candidate/candidates!
   script(src='/javascripts/script.js')
