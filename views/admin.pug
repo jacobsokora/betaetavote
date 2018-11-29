@@ -1,25 +1,22 @@
 extends layout
 
 block content
-  .container-fluid
-    .col.col-md-4
-    .col.col-sm-12.col-md-4
-      if poll == null
-        h4 No active vote available!
-      else if thanks
-        h4 Thanks for voting!
-      else 
-        h4= "Vote for " + poll
-        form(action='/vote', method='get')
-          - var x = 0
-          while x < winners
-            - x++
-            select(required, size=candidates.length, name='candidate' + x, class='form-control form-control-lg', id='candidate' + x)
-              each candidate in candidates
-                option(value=candidate)= candidate
-            br
-          center
-            button(type='submit', class='btn btn-lg btn-info', id='submit') Submit
-            .alert.alert-danger(id='alert', role='alert') You must select different options for your vote!
-    .col.col-md-4
-  script(src='/javascripts/script.js')
+  .container
+    form(onsubmit='return false;')
+      .form-group.row
+        .col-sm-8
+          input(class='form-control form-control-lg' id='poll-name' placeholder='Poll name')
+        .col-sm-2
+          input(class='form-control form-control-lg' id='poll-time' type='Number', min='30'  value='30')
+        .col-sm-2
+          input(class='form-control form-control-lg' id='poll-winners' type='Number' min='1' max='2' value='1')
+      .candidates
+      .form-group.row
+        .col-sm-10
+          input(class='form-control form-control-lg add-candidate-field' placeholder='Add candidate')
+        .col-sm-2
+          button(type='submit' class='btn btn-lg btn-info start-poll') Start
+    center
+      .col-sm-2
+        a(href='/history' class='btn btn-lg btn-info') History
+  script(src='/javascripts/admin.js')

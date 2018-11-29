@@ -1,23 +1,24 @@
 extends layout
 
 block content
-  .container-fluid
-      if poll == null
-        h4 Voting is not available at this time!
-      else if thanks
-        h4 Thanks for voting!
-      else 
-        h4= "Vote for " + poll
-        form(action='/vote', method='get')
-          - var x = 0
-          while x < winners
-            - x++
-            select(required, size=candidates.length, name='candidate' + x, class='form-control form-control-lg', id='candidate' + x)
-              option(disabled, selected) Select a candidate
-              each candidate in candidates
-                option(value=candidate)= candidate
-            br
-          center
-            button(type='submit', class='btn btn-lg btn-info', id='submit') Submit
-            .alert.alert-danger(id='alert', role='alert') You must select a candidate/candidates!
+  .container.col-md-3
+    if poll == null
+      h3 Voting is not available at this time!
+    else if thanks
+      h3(style='text-align: center;') Thanks for voting!
+    else 
+      h3= "Vote for " + poll.name
+      form(onsubmit='return false;')
+        - var x = 0
+        while x < poll.winners
+          - x++
+          select(required, name='candidate' + x, class='form-control form-control-lg', id='candidate' + x)
+            option(disabled, selected) Select a candidate
+            each votes, candidate in poll.candidates
+              option= candidate
+          br
+        center
+          button(type='submit', class='btn btn-lg btn-info', id='submit') Submit
+      br
+      .alert.alert-danger(role='alert') You must select a candidate/candidates!
   script(src='/javascripts/script.js')

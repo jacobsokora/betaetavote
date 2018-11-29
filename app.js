@@ -1,20 +1,41 @@
-var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+var fs = require('fs');
+var http = require('http');
+var https = require('https');
+var crypto = require('crypto');
+
+var certificate = fs.readFileSync('/etc/letsencrypt/live/vote.betaeta.info/cert.pem', 'utf-8');
+var privateKey = fs.readFileSync('/etc/letsencrypt/live/vote.betaeta.info/privkey.pem', 'utf-8');
+var chain = fs.readFileSync('/etc/letsencrypt/live/vote.betaeta.info/chain.pem', 'utf-8');
+
+var credentials = {
+	key: privateKey,
+	cert: certificate,
+	ca: chain
+};
+
+var hashPass = '78cf15d8354d0b4ca5db49840234ffe733423e63e48876f590ade907dd7b5128';
+
+var mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost/betaeta');
+
+var pollSchema = new mongoose.Schema({
+	name: String,
+	candidates: {},
+	voters: [String],
+	winners: Number,
+	when: { type: Date, default: new Date() }
+});
+
+var Poll = mongoose.model('Poll', pollSchema);
 
 const readline = require('readline');
 
 var app = express();
 
-var fs = require('fs');
-
-var polls = null;
-loadPolls();
-
 var activePoll = null
-var activeVote = null
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -26,7 +47,27 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/', function(req, res, next) {
+app.use((req, res, next) => {
+	if (!req.secure) {
+		var secureUrl = `https://${req.headers['host']}${req.url}`;
+		res.writeHead(301, { 'Location': secureUrl });
+		res.end();
+	}
+	next();
+});
+
+var auth = (req, res, next) => {
+	if (req.cookies.password) {
+		var hash = crypto.createHash('sha256').update(req.cookies.password).digest('hex');
+		if (hash == hashPass) {
+			next();
+			return
+		}
+	}
+	res.redirect(`/login?ref=${req.url}`);
+};
+
+app.get('/', (req, res, next) => {
 	if (!activePoll) {
 		res.render('nopoll', {
 			title: 'BetaEta Voting'
@@ -36,183 +77,81 @@ app.get('/', function(req, res, next) {
 	res.render('index', {
 	  	title: 'BetaEta Voting',
 	  	poll: activePoll,
-	  	candidates: Object.keys(polls[activePoll].candidates),
-	  	winners: polls[activePoll].winners,
-	  	thanks: polls[activePoll].voters.includes(req.connection.remoteAddress)
-	  });
+	  	thanks: activePoll.voters.includes(req.connection.remoteAddress)
+	});
 });
 
-app.get('/vote', function(req, res, next) {
-	if (!activePoll) {
+app.post('/vote', (req, res, next) => {
+	var votes = req.body.votes.split(',');
+	if (!activePoll || activePoll.voters.includes(req.connection.remoteAddress)) {
 		res.status(400).send();
 		return;
 	}
-	if (polls[activePoll].voters.includes(req.connection.remoteAddress)) {
-		res.status(500).send();
-		return;
+	for (candidate of votes) {
+		activePoll.candidates[candidate] += 1;
 	}
-	polls[activePoll].voters.push(req.connection.remoteAddress);
-	polls[activePoll].candidates[req.query.candidate1] += 1
-	if (req.query.candidate2) {
-		polls[activePoll].candidates[req.query.candidate2] += 1
-	}
-	fs.writeFileSync(path.join(__dirname, 'routes/polls.json'), JSON.stringify(polls, null, 2));
-	res.redirect('/');
+	activePoll.voters.push(req.connection.remoteAddress);
+	res.status(200).send();
 });
 
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
-});
-
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
-
-const rl = readline.createInterface({
-	input: process.stdin,
-	output: process.stdout
-});
-
-rl.on('line', (input) => {
-	var parts = input.split(' ');
-	var poll = parts[1];
-	if (parts[0] == 'help') {
-		console.log('info <poll>');
-		console.log('create <poll> <winners>');
-		console.log('reload');
-		console.log('add <poll> <name>');
-		console.log('remove <poll> <name>');
-		console.log('end');
-		console.log('start <poll> [time (seconds)]');
-	} else if (parts[0] == 'info') {
-		pollInfo();
-	} else if (parts[0] == 'create' && parts.length >= 3) {
-		polls[poll] = {
-			candidates: {},
-			voters: [],
-			winners: parseInt(parts[2], 1)
-		};
-	} else if (parts[0] == 'reload') {
-		loadPolls();
-		activePoll == null;
-	} else if (parts[0] == 'add' && parts.length >= 3) {
-		polls[poll].candidates[parts.slice(2).join(" ")] = 0;
-	} else if (parts[0] == 'remove' && parts.length >= 3) {
-		delete polls[poll].candidates[parts.slice(2).join(" ")];
-	} else if (parts[0] == 'end') {
-		clearTimeout(activeVote);
-		closeVoting();
-	} else if (parts[0] == 'start' && parts.length >= 2) {
-		if (!polls[poll]) {
-			console.log('Invalid poll!');
+app.get('/admin', auth, (req, res, next) => {
+	Poll.find().sort({ 'when': 'desc' }).exec((err, polls) => {
+		if (err) {
+			res.status(500).send();
 			return;
 		}
-		activePoll = poll;
-		activeVote = setTimeout(closeVoting, (parseInt(parts[2], 30) * 1000) || 30000);
-	} else {
-		console.log('Invalid command, type `help` for a list of commands');
-	}
-	fs.writeFileSync(path.join(__dirname, 'routes/polls.json'), JSON.stringify(polls, null, 2));
+		res.render('admin', {
+			polls: polls
+		});
+	});
 });
 
-function loadPolls() {
-	if (!fs.existsSync(path.join(__dirname, 'routes/polls.json'))) {
-		fs.writeFileSync(path.join(__dirname, 'routes/polls.json'), JSON.stringify({
-			Test: {
-				candidates: {
-					"Option 1": 0,
-					"Option 2": 0
-				},
-				voters: [],
-				winners: 1
-			}
-		}));
-	}
-	polls = JSON.parse(fs.readFileSync(path.join(__dirname, 'routes/polls.json')));
-	pollInfo();
-}
-
-function pollInfo() {
-	console.log('Avaialable elections: ')
-	Object.keys(polls).forEach((item) => {
-		console.log(`${item}: ${Object.keys(polls[item].candidates).join(', ')}`)
-	});
-}
-
-function closeVoting() {
-	if (!activePoll) {
-		return;
-	}
-	var candidates = polls[activePoll].candidates;
-	var totalVotes = polls[activePoll].voters.length;
-	var winners = polls[activePoll].winners;
-	var max = 0;
-	var runner = 0;
-	var maxCandidates = [];
-	var runnerCandidates = [];
-
-	var people = Object.keys(candidates);
-	for (var i = 0; i < people.length; i++) {
-		var votes = candidates[people[i]];
-		if (votes > max) {
-			max = votes;
-			maxCandidates = [people[i]];
-		} else if (votes == max) {
-			maxCandidates.push(people[i]);
-		} else if (votes > runner) {
-			runner = votes;
-			runnerCandidates = [people[i]];
-		} else if (votes == runner) {
-			runnerCandidates.push(people[i]);
-		}
-	}
-	if (max < totalVotes / 2) {
-		var newCandidates = {}
-		for (let candidate of maxCandidates) {
-			newCandidates[candidate] = 0;
-		}
-		if (maxCandidates.length <= winners) { 
-			for (let candidate of runnerCandidates) {
-				newCandidates[candidate] = 0;
-			}
-		}
-		console.log(`${maxCandidates.join(', ')} had ${max} votes`);
-		console.log(`${runnerCandidates.join(', ')} had ${runner} votes`);
-		console.log(`Adding resultion poll for ${Object.keys(newCandidates).join(', ')}`);
-		polls[activePoll]  = {
-			candidates: newCandidates,
-			voters: [],
-			winners: winners
-		};
-		return;
-	}
-	if (maxCandidates.length < winners) {
-		console.log(`${maxCandidates.join(', ')} won, but there aren't enough to satisfy requirements, adding ${runnerCandidates.join(', ')} to satisfy`);
-		maxCandidates.concat(runnerCandidates);
-	}
-	if (maxCandidates.length > winners) {
-		console.log(`${maxCandidates.join(', ')} is too many candidates, second vote to narrow!`);
-		var newCandidates = {};
-		for (let candidate of maxCandidates) {
-			newCandidates[candidate] = 0;
-		}
-		polls[activePoll] = {
-			candidates: newCandidates,
-			voters: [],
-			winners: winners
-		};
+app.post('/admin', auth, (req, res, next) => {
+	var name = req.body.name;
+	var winners = req.body.winners;
+	var candidates = req.body['candidates[]'];
+	var time = req.body.time || 30;
+	if (!name || !winners || !candidates || candidates.length < 2) {
+		res.status(400).send();
+	} else if (activePoll != null) {
+		res.status(500).send('Poll is already started');
 	} else {
-		console.log(`${maxCandidates.join(', ')} wins ${activePoll}!`);
+		var pollCandidates = {};
+		for (candidate of candidates) {
+			pollCandidates[candidate] = 0;
+		}
+		activePoll = new Poll({
+			name: name,
+			winners: winners,
+			voters: [],
+			candidates: pollCandidates
+		});
+		setTimeout(() => {
+			activePoll.save();
+			activePoll = null;
+		}, time * 1000);
+		res.status(200).send();
 	}
-	activePoll = null
-}
+});
 
-module.exports = app;
+app.get('/history', auth, (req, res, next) => {
+	Poll.find().sort({ 'when': 'desc' }).exec((err, polls) => {
+		if (err) {
+			res.render('nohistory');
+		} else {
+			res.render('history', {
+				polls: polls
+			});
+		}
+	})
+});
+
+app.get('/login', (req, res, next) => {
+	res.render('login');
+});
+
+var httpServer = http.createServer(app);
+var httpsServer = https.createServer(credentials, app);
+
+httpServer.listen(80);
+httpsServer.listen(443);
