@@ -16,7 +16,7 @@ var credentials = {
 	ca: chain
 };
 
-var hashPass = '78cf15d8354d0b4ca5db49840234ffe733423e63e48876f590ade907dd7b5128';
+var hashPass = 'bb16b95f2891c259a779aad7ed5282f499e6fc43e0a2586052232bba4443c6a5';
 
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/betaeta');

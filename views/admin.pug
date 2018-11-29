@@ -1,7 +1,16 @@
-extends layout
+doctype html
+html
+  head
+    title Admin
+    link(rel='stylesheet', href='/stylesheets/admin.css')
+    link(href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css", rel="stylesheet")
+    meta(name='viewport', content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, shrink-to-fit=no')
+    script(src="https://code.jquery.com/jquery-3.3.1.min.js")
 
-block content
+body
+  .background
   .container
+    br
     form(onsubmit='return false;')
       .form-group.row
         .col-sm-8
@@ -19,4 +28,5 @@ block content
     center
       .col-sm-2
         a(href='/history' class='btn btn-lg btn-info') History
+    br
   script(src='/javascripts/admin.js')
