@@ -19,7 +19,12 @@ var credentials = {
 var hashPass = 'bb16b95f2891c259a779aad7ed5282f499e6fc43e0a2586052232bba4443c6a5';
 
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/betaeta');
+var user = process.env.USER;
+var password = process.env.PASSWORD;
+if (!user || !password) {
+	process.exit(0);
+}
+mongoose.connect(`mongodb://${user}:${password}@ds123664.mlab.com:23664/heroku_qlld2krm`);
 
 var pollSchema = new mongoose.Schema({
 	name: String,

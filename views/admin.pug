@@ -13,12 +13,18 @@ body
     br
     form(onsubmit='return false;')
       .form-group.row
-        .col-sm-8
+        .col-sm-6
           input(class='form-control form-control-lg' id='poll-name' placeholder='Poll name')
-        .col-sm-2
-          input(class='form-control form-control-lg' id='poll-time' type='Number', min='30'  value='30')
-        .col-sm-2
-          input(class='form-control form-control-lg' id='poll-winners' type='Number' min='1' max='2' value='1')
+        .col-sm-3
+          .input-group
+            input(class='form-control form-control-lg' id='poll-time' type='Number' min='30'  value='30' aria-describedby='timeaddon')
+            .input-group-append
+              span(class='input-group-text' id='timeaddon') Seconds
+        .col-sm-3
+          .input-group
+            input(class='form-control form-control-lg' id='poll-winners' type='Number' min='1' max='2' value='1' aria-describedby='winnersaddon')
+            .input-group-append
+              span(class='input-group-text' id='winnersaddon') Winner(s)
       .candidates
       .form-group.row
         .col-sm-10
