@@ -157,5 +157,5 @@ app.get('/login', (req, res, next) => {
 var httpServer = http.createServer(app);
 // var httpsServer = https.createServer(credentials, app);
 
-httpServer.listen(80);
+httpServer.listen(process.env.PORT);
 // httpsServer.listen(443);
