@@ -19,12 +19,11 @@ var credentials = {
 var hashPass = 'bb16b95f2891c259a779aad7ed5282f499e6fc43e0a2586052232bba4443c6a5';
 
 var mongoose = require('mongoose');
-var user = process.env.USER;
-var password = process.env.PASSWORD;
-if (!user || !password) {
+var uri = process.env.MONGODB_URI;
+if (!uri) {
 	process.exit(0);
 }
-mongoose.connect(`mongodb://${user}:${password}@ds123664.mlab.com:23664/heroku_qlld2krm`);
+mongoose.connect(uri);
 
 var pollSchema = new mongoose.Schema({
 	name: String,
