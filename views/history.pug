@@ -12,8 +12,7 @@ html
         h1(class='text-center') No vote history
       else
         h1 Vote history
-        br
-        table(class='table table-striped')
+        table(class='table')
           thead(class='thead-dark')
             tr
               th Name
@@ -21,7 +20,8 @@ html
           each poll in polls
             thead(class='thead-light')
               tr
-                th= poll.name + ' | ' + poll.winners + ' winner(s) | ' + poll.voters.length + ' voters'
+                th= poll.name
+                th(class='text-right')= poll.voters.length + ' voters'
             tbody
               each votes, candidate in poll.candidates
                 tr
