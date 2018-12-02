@@ -12,20 +12,20 @@ html
         h1(class='text-center') No vote history
       else
         h1 Vote history
+        br
+        table(class='table table-striped')
+          thead(class='thead-dark')
+            tr
+              th Name
+              th(class='text-right') Votes
         each poll in polls
-          br
-          .row.justify-content-between
-            .col-md-10
-              h6= poll.name + ' | ' + poll.winners + ' winner(s) | ' + poll.voters.length + ' voters'
-          table(class='table table-striped')
-            thead
+          thead(class='thead-light')
+            tr
+              th= poll.name + ' | ' + poll.winners + ' winner(s) | ' + poll.voters.length + ' voters'
+          tbody
+            each votes, candidate in poll.candidates
               tr
-                th Name
-                th(class='text-right') Votes
-            tbody
-              each votes, candidate in poll.candidates
-                tr
-                  td= candidate
-                  td(class='text-right')= votes + ' (' + (votes / poll.voters.length * 100).toFixed(2) + '%)'
+                td= candidate
+                td(class='text-right')= votes + ' (' + (votes / poll.voters.length * 100).toFixed(2) + '%)'
         br
     script(src='/javascripts/history.js')
