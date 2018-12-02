@@ -3,18 +3,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var fs = require('fs');
 var http = require('http');
-// var https = require('https');
 var crypto = require('crypto');
-
-// var certificate = fs.readFileSync('/etc/letsencrypt/live/vote.betaeta.info/cert.pem', 'utf-8');
-// var privateKey = fs.readFileSync('/etc/letsencrypt/live/vote.betaeta.info/privkey.pem', 'utf-8');
-// var chain = fs.readFileSync('/etc/letsencrypt/live/vote.betaeta.info/chain.pem', 'utf-8');
-
-// var credentials = {
-// 	key: privateKey,
-// 	cert: certificate,
-// 	ca: chain
-// };
 
 var hashPass = 'bb16b95f2891c259a779aad7ed5282f499e6fc43e0a2586052232bba4443c6a5';
 
@@ -41,24 +30,13 @@ var app = express();
 
 var activePoll = null
 
-// view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
-// app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
-// app.use((req, res, next) => {
-// 	if (!req.secure) {
-// 		var secureUrl = `https://${req.headers['host']}${req.url}`;
-// 		res.writeHead(301, { 'Location': secureUrl });
-// 		res.end();
-// 	}
-// 	next();
-// });
 
 var auth = (req, res, next) => {
 	if (req.cookies.password) {
@@ -155,7 +133,5 @@ app.get('/login', (req, res, next) => {
 });
 
 var httpServer = http.createServer(app);
-// var httpsServer = https.createServer(credentials, app);
 
 httpServer.listen(process.env.PORT);
-// httpsServer.listen(443);

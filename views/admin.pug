@@ -13,26 +13,26 @@ body
     br
     form(onsubmit='return false;')
       .form-group.row
-        .col-sm-6
+        .col-md-6
           input(class='form-control form-control-lg' id='poll-name' placeholder='Poll name')
-        .col-sm-3
+        .col-md-3
           .input-group
             input(class='form-control form-control-lg' id='poll-time' type='Number' min='30'  value='30' aria-describedby='timeaddon')
             .input-group-append
               span(class='input-group-text' id='timeaddon') Seconds
-        .col-sm-3
+        .col-md-3
           .input-group
             input(class='form-control form-control-lg' id='poll-winners' type='Number' min='1' max='2' value='1' aria-describedby='winnersaddon')
             .input-group-append
               span(class='input-group-text' id='winnersaddon') Winner(s)
       .candidates
       .form-group.row
-        .col-sm-10
+        .col-md-10
           input(class='form-control form-control-lg add-candidate-field' placeholder='Add candidate')
-        .col-sm-2
+        .col-md-2
           button(type='submit' class='btn btn-lg btn-info start-poll') Start
     center
-      .col-sm-2
+      .col-md-2
         a(href='/history' class='btn btn-lg btn-info') History
     br
   script(src='/javascripts/admin.js')
