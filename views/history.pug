@@ -26,6 +26,6 @@ html
               each votes, candidate in poll.candidates
                 tr
                   td= candidate
-                  td(class='text-right')= votes + '(' + (votes / poll.voters.length * 100).toFixed(2) + '%)'
+                  td(class='text-right')= votes + ' (' + (votes / poll.voters.length * 100).toFixed(2) + '%)'
         br
     script(src='/javascripts/history.js')
