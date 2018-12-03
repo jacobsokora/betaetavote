@@ -9,12 +9,12 @@ $(document).ready(() => {
 			return;
 		}
 		$('.candidates').append(`
-			<div class="form-group row" data-candidate="${name}">
+			<div class="form-group row" data-candidate="${name.replace(' ', '')}">
 				<div class="col-sm-10">
 					<input class="form-control form-control-lg name" value="${name}" />
 				</div>
 				<div class="col-sm-2">
-					<button class="btn btn-lg btn-danger delete-candidate" data-candidate="${name}">Delete</button>
+					<button class="btn btn-lg btn-danger delete-candidate" data-candidate="${name.replace(' ', '')}">Delete</button>
 				</div>
 			</div>
 		`);
