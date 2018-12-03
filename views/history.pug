@@ -16,8 +16,8 @@ html
           each poll in polls
             thead(class='thead-light')
               tr
-                th= poll.when.getMonth() + '/' + poll.when.getDate() + '/' + poll.when.getFullYear() + ': ' + poll.name + ' (' + poll.winners + ')'
-                th(class='text-right')= poll.voters.length + ' voters'
+                th= poll.name + ' ' + poll.when.getMonth() + '/' + poll.when.getDate() + '/' + poll.when.getFullYear()
+                th(class='text-right')= poll.voters.length + ' voters (' + poll.winners + ' winners)'
             tbody
               each votes, candidate in poll.candidates
                 tr
