@@ -1,7 +1,6 @@
 extends layout
 
 block content
-  .background
   .container
     br
     if polls.length == 0
@@ -19,4 +18,3 @@ block content
               tr
                 td= candidate
                 td(class='text-right')= votes + ' votes (' + (votes / poll.voters.length * 100).toFixed(1) + '%)'
-      br
