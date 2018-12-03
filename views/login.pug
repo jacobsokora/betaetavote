@@ -1,9 +1,10 @@
 extends layout
 
 block content
-  .container.col-md-2.centered
-    center
-      input(type='password' placeholder='Password' class='form-control form-control-lg' id='password')
-      br
-      button(class='btn btn-lg btn-info' onclick='setCookie();') Sign in
+  .content
+    .container.col-md-2.centered
+      center
+        input(type='password' placeholder='Password' class='form-control form-control-lg' id='password')
+        br
+        button(class='btn btn-lg btn-info' onclick='setCookie();') Sign in
   script(src='/javascripts/login.js')
