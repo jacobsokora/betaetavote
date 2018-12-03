@@ -131,7 +131,7 @@ app.post('/admin', auth, (req, res, next) => {
 });
 
 app.get('/history', auth, (req, res, next) => {
-	Poll.find().sort({ 'when': 'desc' }).exec((err, polls) => {
+	Poll.find().sort({ 'when': 'asc' }).exec((err, polls) => {
 		if (err) {
 			res.render('nohistory');
 		} else {
