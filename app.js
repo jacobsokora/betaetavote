@@ -72,7 +72,14 @@ app.post('/vote', (req, res, next) => {
 	for (candidate of votes) {
 		activePoll.candidates[candidate] += 1;
 	}
-	activePoll.voters.push(req.connection.remoteAddress);
+	var ip = req.headers['x-forwarded-for'];
+	if (ip) {
+		var list = ip.split(',');
+		ip = list[list.length - 1];
+	} else {
+		ip = req.connection.remoteAddress;
+	}
+	activePoll.voters.push(ip);
 	res.status(200).send();
 });
 
