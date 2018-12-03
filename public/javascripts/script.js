@@ -17,8 +17,13 @@ $(document).ready(() => {
 			console.log(selections)
 			$.post('/vote', {
 				'votes': selections.join()
-			}, 'json');
-			location.reload();
+			}, 'json')
+			.done(() => {
+				location.reload();
+			})
+			.fail(() => {
+				alert('Failed to cast your vote, please try again!');
+			});
 		}
 	});
 });
