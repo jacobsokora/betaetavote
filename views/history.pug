@@ -1,28 +1,22 @@
-doctype html
-html
-  head
-    title Vote history
-    link(href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css", rel="stylesheet")
-    link(href='/stylesheets/admin.css' rel='stylesheet')
-    meta(name='viewport', content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, shrink-to-fit=no')
-    script(src="https://code.jquery.com/jquery-3.3.1.min.js")
-  body
-    .background
-    .container
-      br
-      if polls.length == 0
-        h1(class='text-center') No vote history
-      else
-        h1 Vote history
-        table(class='table')
-          each poll in polls
-            thead(class='thead-light')
+extends layout
+
+block content
+  .background
+  .container
+    br
+    if polls.length == 0
+      h1(class='text-center') No vote history
+    else
+      h1 Vote history
+      table(class='table')
+        each poll in polls
+          thead(class='thead-light')
+            tr
+              th= poll.name + ' ' + poll.when.getMonth() + '/' + poll.when.getDate() + '/' + poll.when.getFullYear()
+              th(class='text-right')= poll.voters.length + ' voters (' + poll.winners + ' winner(s))'
+          tbody
+            each votes, candidate in poll.candidates
               tr
-                th= poll.name + ' ' + poll.when.getMonth() + '/' + poll.when.getDate() + '/' + poll.when.getFullYear()
-                th(class='text-right')= poll.voters.length + ' voters (' + poll.winners + ' winner(s))'
-            tbody
-              each votes, candidate in poll.candidates
-                tr
-                  td= candidate
-                  td(class='text-right')= votes + ' votes (' + (votes / poll.voters.length * 100).toFixed(1) + '%)'
-        br
+                td= candidate
+                td(class='text-right')= votes + ' votes (' + (votes / poll.voters.length * 100).toFixed(1) + '%)'
+      br
