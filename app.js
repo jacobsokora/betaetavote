@@ -49,6 +49,16 @@ var auth = (req, res, next) => {
 	res.redirect(`/login?ref=${req.url}`);
 };
 
+app.use((req, res, next) => {
+	var hose = req.headers['host'];
+	if (req.secure && host != 'betaetavote.herokuapp.com') {
+		var newUrl = `http://${host}${req.url}`;
+		res.writeHead(301, { 'Location': newUrl });
+		res.end();
+	}
+	next();
+});
+
 app.get('/', (req, res, next) => {
 	if (!activePoll) {
 		res.render('nopoll', {
