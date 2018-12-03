@@ -13,19 +13,15 @@ html
       else
         h1 Vote history
         table(class='table')
-          thead(class='thead-dark')
-            tr
-              th Name
-              th(class='text-right') Votes
           each poll in polls
             thead(class='thead-light')
               tr
-                th= poll.name
+                th= poll.name + ' (' + poll.winners + ')'
                 th(class='text-right')= poll.voters.length + ' voters'
             tbody
               each votes, candidate in poll.candidates
                 tr
                   td= candidate
-                  td(class='text-right')= votes + ' (' + (votes / poll.voters.length * 100).toFixed(2) + '%)'
+                  td(class='text-right')= votes + ' votes (' + (votes / poll.voters.length * 100).toFixed(1) + '%)'
         br
     script(src='/javascripts/history.js')
