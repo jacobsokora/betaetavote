@@ -56,28 +56,35 @@ app.get('/', (req, res, next) => {
 		});
 		return;
 	}
-	res.render('index', {
-	  	title: 'BetaEta Voting',
-	  	poll: activePoll,
-	  	thanks: activePoll.voters.includes(req.connection.remoteAddress)
-	});
-});
-
-app.post('/vote', (req, res, next) => {
-	var votes = req.body.votes.split(',');
-	if (!activePoll || activePoll.voters.includes(req.connection.remoteAddress)) {
-		res.status(400).send();
-		return;
-	}
-	for (candidate of votes) {
-		activePoll.candidates[candidate] += 1;
-	}
 	var ip = req.headers['x-forwarded-for'];
 	if (ip) {
 		var list = ip.split(',');
 		ip = list[list.length - 1];
 	} else {
 		ip = req.connection.remoteAddress;
+	}
+	res.render('index', {
+	  	title: 'BetaEta Voting',
+	  	poll: activePoll,
+	  	thanks: activePoll.voters.includes(ip)
+	});
+});
+
+app.post('/vote', (req, res, next) => {
+	var votes = req.body.votes.split(',');
+	var ip = req.headers['x-forwarded-for'];
+	if (ip) {
+		var list = ip.split(',');
+		ip = list[list.length - 1];
+	} else {
+		ip = req.connection.remoteAddress;
+	}
+	if (!activePoll || activePoll.voters.includes(ip)) {
+		res.status(400).send();
+		return;
+	}
+	for (candidate of votes) {
+		activePoll.candidates[candidate] += 1;
 	}
 	activePoll.voters.push(ip);
 	res.status(200).send();
