@@ -57,8 +57,7 @@ $(document).ready(() => {
 			'candidates[]': candidates,
 			'time': time
 		}, 'json');
-		alert(`Voting for ${name} will close in ${time} seconds!`);
-		location = '/history';
+		alert(`Voting for ${name} will close in ${time} seconds! Go to history for results.`);
 	});
 
 });
