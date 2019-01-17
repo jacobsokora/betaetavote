@@ -11,7 +11,7 @@ block content
         each poll in polls
           thead(class='thead-light')
             tr
-              th= poll.name + ' ' + poll.when.getMonth() + '/' + poll.when.getDate() + '/' + poll.when.getFullYear()
+              th= poll.name + ' ' + poll.when.getMonth() + 1 + ' ' + poll.when.getFullYear()
               th(class='text-right')= poll.voters.length + ' voters (' + poll.winners + (poll.winners == 1 ? ' winner)' : ' winners)')
           tbody
             each votes, candidate in poll.candidates

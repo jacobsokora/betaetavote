@@ -124,6 +124,7 @@ app.post('/admin', auth, (req, res, next) => {
 			candidates: pollCandidates
 		});
 		setTimeout(() => {
+			activePoll.when = Date();
 			activePoll.save();
 			activePoll = null;
 		}, time * 1000);
