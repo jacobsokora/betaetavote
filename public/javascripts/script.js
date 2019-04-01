@@ -1,6 +1,6 @@
 $(document).ready(() => {
-	console.log('ready');
 	$('#submit').click((event) => {
+		$('#submit').attr('disabled', true);
 		$('.alert').css('visibility', 'hidden');
 		var selections = [];
 		$('select').each((index, obj) => {
@@ -22,7 +22,7 @@ $(document).ready(() => {
 				location.reload();
 			})
 			.fail(() => {
-				alert('Failed to cast your vote, please try again!');
+				location.reload();
 			});
 		}
 	});
