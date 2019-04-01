@@ -134,16 +134,17 @@ app.post('/admin', auth, (req, res, next) => {
 
 app.get('/history', auth, (req, res, next) => {
 	Poll.find().sort({ 'when': 'desc' }).exec((err, polls) => {
-		if (err) {
-			res.render('nohistory', {
-				title: 'History'
-			});
-		} else {
-			res.render('history', {
-				title: 'History',
-				polls: polls
-			});
-		}
+		res.json(polls);
+		// if (err) {
+		// 	res.render('nohistory', {
+		// 		title: 'History'
+		// 	});
+		// } else {
+		// 	res.render('history', {
+		// 		title: 'History',
+		// 		polls: polls
+		// 	});
+		// }
 	})
 });
 
