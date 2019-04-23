@@ -4,6 +4,7 @@ var cookieParser = require('cookie-parser');
 var fs = require('fs');
 var http = require('http');
 var crypto = require('crypto');
+var request = require('request');
 
 var hashPass = 'bb16b95f2891c259a779aad7ed5282f499e6fc43e0a2586052232bba4443c6a5';
 
@@ -49,7 +50,27 @@ var auth = (req, res, next) => {
 	res.redirect(`/login?ref=${req.url}`);
 };
 
-app.get('/', (req, res, next) => {
+var apoauth = (req, res, next) => {
+	let oauthRedirect = 'https://apoonline.org/api/oauth/authorize?scope=basic&redirect_uri=https://vote.betaeta.info/auth&response_type=code&client_id=testclient&access_type=offline';
+	if (req.user) {
+		return next();
+	}
+	if (!req.cookies && !req.cookies.__session) {
+		return res.redirect(oauthRedirect);
+	} else {
+		let apoToken = req.cookies.__session;
+		request(`https://apoonline.org/api/users/me?access_token=${apoToken}`, (err, response, body) => {
+			if (response.status == 200) {
+				req.user = body.id;
+				return next();
+			} else {
+				return res.redirect(oauthRedirect);
+			}
+		});
+	}
+}
+
+app.get('/', apoauth, (req, res, next) => {
 	if (!activePoll) {
 		res.render('nopoll', {
 			title: 'BetaEta Voting'
@@ -70,6 +91,10 @@ app.get('/', (req, res, next) => {
 	});
 });
 
+app.get('/auth', (req, res, next) => {
+	res.json(req);
+});
+
 app.post('/vote', (req, res, next) => {
 	var votes = req.body.votes.split(',');
 	var ip = req.headers['x-forwarded-for'];
@@ -80,7 +105,7 @@ app.post('/vote', (req, res, next) => {
 		ip = req.connection.remoteAddress;
 	}
 	if (!activePoll || activePoll.voters.includes(ip)) {
-		res.status(400).send();
+		res.status(400).send({message: 'You already voted!'});
 		return;
 	}
 	for (candidate of votes) {
