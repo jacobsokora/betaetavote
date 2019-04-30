@@ -59,7 +59,7 @@ app.get('/', (req, res, next) => {
 	var ip = req.headers['x-forwarded-for'];
 	if (ip) {
 		var list = ip.split(',');
-		ip = list[list.length - 1];
+		ip = list[0];
 	} else {
 		ip = req.connection.remoteAddress;
 	}
