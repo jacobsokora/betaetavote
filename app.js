@@ -56,17 +56,19 @@ app.get('/', (req, res, next) => {
 		});
 		return;
 	}
-	var ip = req.headers['x-forwarded-for'];
-	if (ip) {
-		var list = ip.split(',');
-		ip = list[0];
-	} else {
-		ip = req.connection.remoteAddress;
-	}
+	var pollCookie = req.cookies.poll;
+	var thanks = pollCookie && activePoll && pollCookie == activePoll.name;
+	// var ip = req.headers['x-forwarded-for'];
+	// if (ip) {
+	// 	var list = ip.split(',');
+	// 	ip = list[0];
+	// } else {
+	// 	ip = req.connection.remoteAddress;
+	// }
 	res.render('index', {
 	  	title: 'BetaEta Voting',
 	  	poll: activePoll,
-	  	thanks: activePoll.voters.includes(ip)
+	  	thanks: thanks// activePoll.voters.includes(ip)
 	});
 });
 
@@ -79,14 +81,15 @@ app.post('/vote', (req, res, next) => {
 	} else {
 		ip = req.connection.remoteAddress;
 	}
-	if (!activePoll || activePoll.voters.includes(ip)) {
-		res.status(400).send();
-		return;
-	}
+	// if (!activePoll || activePoll.voters.includes(ip)) {
+	// 	res.status(400).send();
+	// 	return;
+	// }
 	for (candidate of votes) {
 		activePoll.candidates[candidate] += 1;
 	}
 	activePoll.voters.push(ip);
+	res.append('Set-Cookie', `poll=${activePoll.name}; Path=/; HttpOnly`);
 	res.status(200).send();
 });
 
