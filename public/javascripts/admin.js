@@ -39,7 +39,7 @@ $(document).ready(() => {
 		var winners = $('#poll-winners').val();
 		var candidates = [];
 		$('.name').each((index, field) => {
-			var candidate = $(field).val();
+			var candidate = $(field).val().trim();
 			if (!candidate || candidate.length == 0) {
 				return true;
 			}
